@@ -1,8 +1,10 @@
 package presentation
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.DelicateDecomposeApi
-import com.arkivanov.decompose.router.stack.*
+import com.arkivanov.decompose.router.stack.ChildStack
+import com.arkivanov.decompose.router.stack.StackNavigation
+import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.popTo
 import com.arkivanov.decompose.value.Value
 import kotlinx.serialization.Serializable
 
@@ -12,8 +14,8 @@ interface RootComponent {
     fun onBackClicked(toIndex: Int)
 
     sealed class Child {
-        class ListChild(val component: ListComponent) : Child()
-        class DetailsChild(val component: DetailsComponent) : Child()
+        class NoteList(val component: NoteListComponent) : Child()
+        class Note(val component: NoteComponent) : Child()
     }
 }
 
@@ -27,7 +29,7 @@ class DefaultRootComponent(
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialConfiguration = Config.List,
+            initialConfiguration = Config.NoteList,
             handleBackButton = true,
             childFactory = ::childFactory
         )
@@ -40,42 +42,30 @@ class DefaultRootComponent(
         config: Config,
         componentContext: ComponentContext
     ) = when (config) {
-        is Config.Details -> RootComponent.Child.DetailsChild(
-            createDetailsComponent(componentContext, config)
-        )
-        Config.List -> RootComponent.Child.ListChild(
-            createListComponent(componentContext)
-        )
+        Config.Note -> RootComponent.Child.Note(createNoteComponent(componentContext))
+        Config.NoteList -> RootComponent.Child.NoteList(createNoteListComponent(componentContext))
     }
 
-    private fun createListComponent(
+    private fun createNoteListComponent(
         componentContext: ComponentContext
-    ) = DefaultListComponent(
-        componentContext = componentContext,
-        onItemSelected = { item ->
-            navigation.pushNew(Config.Details(item))
-        }
+    ) = DefaultNoteListComponent(
+        componentContext = componentContext
     )
 
-    private fun createDetailsComponent(
-        componentContext: ComponentContext,
-        config: Config.Details
-    )= DefaultDetailsComponent(
-        componentContext = componentContext,
-        item = config.item,
-        onFinished = navigation::pop
+    private fun createNoteComponent(
+        componentContext: ComponentContext
+    ) = DefaultNoteComponent(
+        componentContext = componentContext
     )
 
     @Serializable
     private sealed interface Config {
 
         @Serializable
-        data object List : Config
+        data object Note : Config
 
         @Serializable
-        data class Details(
-            val item: String
-        ) : Config
+        data object NoteList : Config
     }
 
 }

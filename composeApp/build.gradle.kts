@@ -14,18 +14,6 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_21)
         }
     }
-
-    //TODO("Add if have apple device")
-//    listOf(
-//        iosX64(),
-//        iosArm64(),
-//        iosSimulatorArm64()
-//    ).forEach { iosTarget ->
-//        iosTarget.binaries.framework {
-//            baseName = "ComposeApp"
-//            isStatic = true
-//        }
-//    }
     
     sourceSets {
         androidMain.dependencies {
@@ -35,8 +23,12 @@ kotlin {
             implementation(libs.androidx.material3)
             implementation(libs.androidx.material)
 
+            implementation(libs.koin.android)
+
         }
         commonMain.dependencies {
+
+            // Compose
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -44,8 +36,14 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
+            // Decompose
             implementation(libs.decompose)
             implementation(libs.decompose.compose.extensions)
+
+            // Koin
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
         }
     }
 }

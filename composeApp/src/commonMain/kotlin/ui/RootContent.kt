@@ -5,12 +5,12 @@ import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import presentation.DetailsComponent
+import org.koin.compose.koinInject
 import presentation.RootComponent
 
 @Composable
 fun RootContent(
-    component: RootComponent,
+    component: RootComponent = koinInject(),
     modifier: Modifier = Modifier
 ) = Children(
     stack = component.stack,
@@ -18,7 +18,7 @@ fun RootContent(
     animation = stackAnimation(fade())
 ) {
     when (val child = it.instance) {
-        is RootComponent.Child.DetailsChild -> DetailsContent(component = child.component)
-        is RootComponent.Child.ListChild -> ListContent(component = child.component)
+        is RootComponent.Child.Note -> NoteContent(child.component)
+        is RootComponent.Child.NoteList -> NoteListContent(child.component)
     }
 }
